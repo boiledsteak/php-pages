@@ -25,7 +25,6 @@ music is open ended while country is true false
     <link href="https://fonts.googleapis.com/css2?family=Roboto" rel="stylesheet">
     <?php
         $header = new Header();
-        
     ?>
 </head>
 <body>
@@ -33,13 +32,31 @@ music is open ended while country is true false
         <?php
         $header->header();
         ?>
-        <div>
-        <?php
-            for ($i = 0; $i < 5; $i++) 
-            {
-                echo "this is the count\t" . strval($i) . "<br>"; 
-            }
-        ?>
+        <div class="canvas">
+            <div class="mainpagefn">
+
+            
+                <div class="namebox">
+                    <div class="thename">
+                        Enter your nickame!
+                    </div>
+                    <form class="nameform">
+                        <input type="text" id="fname" name="fname">
+                    </form>
+                </div>
+                <div class="quizprompt">
+                    Pick a quiz
+                </div>
+                <div class="quizoptions">
+                    <div class="quizoption">
+                        Country!
+                    </div>
+                    <div class="quizoption">
+                        Music!
+                    </div>
+
+                </div>
+            </div>
         </div>
     </div>
 </body>

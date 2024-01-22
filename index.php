@@ -15,20 +15,24 @@ class Header
 {
     public function header() 
     {
-        echo '<div class="thehead">
-        <div class="thelogo">
-            Funny facts
-        </div>
-        <div class="menoptions">
-            <div class="menoption" >
-                <a href="/results">results</a>
+        echo 
+        '
+        <div class="outerhead">
+            <div class="thehead">
+                <a class="thelogo" href="/">
+                    Funny facts
+                </a>
+                <div class="menoptions">
+                    <div class="menoption" >
+                        <a href="/results">results</a>
+                    </div>
+                    <div class="menoption">
+                        <a href="/leaderboard">leaderboard</a>
+                    </div>
+                </div>
             </div>
-            <div class="menoption">
-                <a href="/leaderboard">leaderboard</a>
-            </div>
-            
         </div>
-    </div>';
+        ';
     }
 }
 

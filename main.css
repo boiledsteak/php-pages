@@ -1,11 +1,14 @@
 @import url(https://fonts.googleapis.com/css2?family=Roboto+Mono&display=swap);
 
+
+/* UNIVERSAL STYLING */
 *
 {
     border:0;
     padding:0;
     margin:0;
     text-decoration: none;
+    
 }
 
 a { 
@@ -15,19 +18,28 @@ a {
 
 .page
 {
-    width: 700px;
     display: flex;
     flex-direction: column;
     margin: auto;
 }
 
+.outerhead
+{
+    background-color: grey;
+    height: 60px;
+    display: flex;
+}
+
 .thehead
 {
-    height: 60px;
-    background-color: grey;
+    width: 700px;
+    
     display: flex;
     align-items: center;
     justify-content: space-between;
+    margin: auto;
+    border-left: 1px dotted;
+    border-right: 1px dotted;
     
 }
 
@@ -55,4 +67,57 @@ a {
 .menoption:hover
 {
     text-decoration: underline;
+}
+
+.canvas
+{
+    
+    margin: auto;
+    margin-top: 50px;
+    
+
+}
+
+/* MAIN PAGE STYLING */
+
+.mainpagefn
+{
+    height: 170px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    align-items: center;
+}
+
+.namebox
+{
+    display: flex;
+    width: 370px;
+    justify-content: space-between;
+    font-size: 20px;
+    align-items: center;
+}
+
+
+#fname
+{
+    font-size: 15px;
+    border-bottom: 1px solid;
+    border-color: black;
+    padding: 2px 3px;
+}
+
+.quizoptions
+{
+    display: flex;
+    justify-content: space-around;
+}
+
+.quizoption
+{
+    font-family: 'Roboto', sans-serif;
+    font-weight: 700;
+    padding: 20px 20px;
+    border: 1px solid;
+    
 }
