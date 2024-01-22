@@ -59,6 +59,20 @@ switch ($request)
         // require __DIR__ . $viewDir . 'contact.php';
         break;
 
+    case '/register':
+        echo "this should be the register api route!!!";
+        // TODO
+        // check if user exists by reading from .txt files
+        // if user doesn't exist then write new file
+        // if user does exist, find existing file and extract data
+        // then check if user clicked music or country quiz
+        // redirect to music or country quiz
+        
+        // protect routes!!!
+
+        
+        break;
+
     default:
         http_response_code(404);
         $errorPageUrl = "https://http.cat/404";

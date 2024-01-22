@@ -34,28 +34,28 @@ music is open ended while country is true false
         ?>
         <div class="canvas">
             <div class="mainpagefn">
-
-            
-                <div class="namebox">
-                    <div class="thename">
-                        Enter your nickame!
-                    </div>
-                    <form class="nameform">
-                        <input type="text" id="fname" name="fname">
-                    </form>
-                </div>
-                <div class="quizprompt">
-                    Pick a quiz
-                </div>
-                <div class="quizoptions">
-                    <div class="quizoption">
-                        Country!
-                    </div>
-                    <div class="quizoption">
-                        Music!
+                <form class="nameform" method="post" action="/register">
+                    <div class="namebox">
+                        <div class="thename">
+                            Enter your nickname!
+                        </div>
+                            <input type="text" id="fname" name="fname">
                     </div>
 
-                </div>
+                    <div class="quizprompt">
+                        <p>
+                        Pick a quiz
+                        </p>
+                    </div>
+                    <div class="quizoptions">
+                        <div class="quizoption">
+                            <input type="submit" form="quizForm" name="quizType" value="Country"></input>
+                        </div>
+                        <div class="quizoption">
+                            <input type="submit" form="quizForm" name="quizType" value="Music"></inputs>
+                        </div>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
