@@ -1,3 +1,3 @@
-SIM UOW ISIT307 \
-php \
+# SIM UOW ISIT307
+php 
 assignment 1 
