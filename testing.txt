@@ -1,0 +1,3 @@
+tim=40
+eunice=50
+john	=60 
