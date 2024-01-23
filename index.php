@@ -1,4 +1,6 @@
 <?php
+session_start();
+
 //don't display errors
 ini_set('display_errors', 0);
 //write errors to log
@@ -8,7 +10,21 @@ error_reporting(E_ALL & ~E_NOTICE);
 $request = strtolower($_SERVER['REQUEST_URI']);
 $viewDir = '/pages/';
 
-//classes
+// Define the User class
+class User 
+{
+    public $name;
+    public $points;
+
+    public function __construct($name = 'x', $points = 0)
+    {
+        $this->name = $name;
+        $this->points = $points;
+    }
+}
+
+// // Create an instance of the User class
+// $user = new User();
 
 //prints the header component
 class Header 
@@ -37,7 +53,8 @@ class Header
 }
 
 //router API
-switch ($request) {
+switch ($request) 
+{
     case '':
     case '/':
         {
@@ -68,13 +85,15 @@ switch ($request) {
 
     case '/register':
         {
-            // TODO
             // get data from form
             if ($_SERVER["REQUEST_METHOD"] == "POST") 
             {
                 $name = strtolower(htmlspecialchars($_POST['fname']));
                 $quiz = htmlspecialchars($_POST['quizType']);
                 
+                // create an instance of the User class
+                $user = new User();
+        
                 // validate name
                 if (empty($name)) 
                 {
@@ -91,47 +110,82 @@ switch ($request) {
                 else 
                 {
                     // validate quiz type
-                    if ($quiz === 'Country' || $quiz === 'Music') {
+                    if ($quiz === 'Country' || $quiz === 'Music') 
+                    {
                         $filepath = 'testing.txt';
-
                         // Check if the file exists
                         if (file_exists($filepath)) 
                         {
                             // Read file content into an associative array
                             $fileContent = file_get_contents($filepath);
                             $lines = explode("\n", $fileContent);
-
                             $scores = array();
                             foreach ($lines as $line) 
                             {
-                                $parts = explode('=', $line);
-                                $username = trim($parts[0]);
-                                $score = trim($parts[1]);
-                                $scores[$username] = $score;
+                                if (!empty($line))
+                                {
+                                    $parts = explode('=', $line);
+                                    $username = $parts[0];
+                                    $score = $parts[1];
+                                    $scores[$username] = $score;
+                                }
                             }
-
+        
                             // Check if the entered nickname exists in the array
                             if (array_key_exists($name, $scores)) 
                             {
                                 // Output the username and score for the entered nickname
                                 echo "User found!<br>";
-                                echo "Username: $name, Score: " . $scores[$name] . "<br>";
-                            } 
+        
+                                $user->name = $name;
+                                $user->points = (int)$scores[$name];
+        
+                                echo 'Username: ' . $user->name . ", Score: " . $user->points . "<br>";
+                                // Store user object in the session
+                                $_SESSION['user'] = $user;
+                                // redirect to music or country quiz
+                                if ($quiz === 'Country') 
+                                {
+                                    header('Location: /country');
+                                    exit;
+                                } 
+                                elseif ($quiz === 'Music') 
+                                {
+                                    header('Location: /music');
+                                    exit;
+                                }
+                            }
                             else 
                             {
                                 // User not found                               
                                 // Append the user's input nickname and a default score of 90 to the file
-                                $newEntry = "$name=90\n";
+                                $newEntry = "$name=0\n";
                                 file_put_contents($filepath, $newEntry, FILE_APPEND);
-
+        
+                                $user->name = $name;
+                                $user->points = 0;
+        
                                 // Display a message about the appended entry
-                                echo "User added! Username: $name, Score: 90<br>";
+                                echo 'User added! Username: ' . $user->name . ", Score: " . $user->points . "<br>";
+                                // Store user object in the session
+                                $_SESSION['user'] = $user;
+                                // redirect to music or country quiz
+                                if ($quiz === 'Country') 
+                                {
+                                    header('Location: /country');
+                                    exit;
+                                } 
+                                elseif ($quiz === 'Music') 
+                                {
+                                    header('Location: /music');
+                                    exit;
+                                }
                             }
                         } 
                         else 
                         {
-                            // File does not exist
-                            echo "<h1>File not found</h1>";
+                            // File does not exist or error with file reading
+                            echo "<h1>Something went wrong!!! Please try again</h1>";
                             require __DIR__ . $viewDir . 'mainpage.php';
                             break;
                         }
@@ -145,14 +199,49 @@ switch ($request) {
                     }
                 }
             }
+            break;
         }
 
-        // then check if user clicked music or country quiz
-        // redirect to music or country quiz
-        
-        // protect routes!!!
+    case '/music':
+        {
+            // Retrieve user object from the session
+            $user = $_SESSION['user'] ?? null;
+            // Check if user is logged in
+            if ($user) 
+            {
+                echo "is it working? this should be the country quiz page<br>";
+                echo $user->name . "<br>";
+                echo $user->points . "<br>";
+            } 
+            else 
+            {
+                // Redirect back
+                header('Location: /');
+                exit;
+            }
+            break;
+        }
 
-        break;
+    case '/country':
+        {
+            // Retrieve user object from the session
+            $user = $_SESSION['user'] ?? null;
+            // Check if user is logged in
+            if ($user) 
+            {
+                echo "is it working? this should be the country quiz page<br>";
+                echo $user->name . "<br>";
+                echo $user->points . "<br>";
+            } 
+            else 
+            {
+                // Redirect back
+                header('Location: /');
+                exit;
+            }
+            break;
+        }
+
 
     default:
     {
@@ -162,4 +251,3 @@ switch ($request) {
         exit;
     }
 }
-

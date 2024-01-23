@@ -35,10 +35,10 @@
                     </div>
                     <div class="quizoptions">
                         <div class="quizoption">
-                            <input type="submit" name="quizType" value="Country">
+                            <input class="hvr-wobble-skew" type="submit" name="quizType" value="Country">
                         </div>
                         <div class="quizoption">
-                            <input type="submit" name="quizType" value="Music">
+                            <input class="hvr-wobble-skew" type="submit" name="quizType" value="Music">
                         </div>
                     </div>
                 </form>
