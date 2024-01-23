@@ -1,17 +1,3 @@
-<!-- 
-
-Timothy Mah
-web server programming assignment 1
-22 Jan 2024
-
- -->
-
-<!-- 
-notes:
-music is open ended while country is true false 
-
--->
-
 <!DOCTYPE html>
 <html>
 <head>
@@ -39,20 +25,20 @@ music is open ended while country is true false
                         <div class="thename">
                             Enter your nickname!
                         </div>
-                            <input type="text" id="fname" name="fname">
+                        <input type="text" id="fname" name="fname">
                     </div>
 
                     <div class="quizprompt">
                         <p>
-                        Pick a quiz
+                            Pick a quiz
                         </p>
                     </div>
                     <div class="quizoptions">
                         <div class="quizoption">
-                            <input type="submit" form="quizForm" name="quizType" value="Country"></input>
+                            <input type="submit" name="quizType" value="Country">
                         </div>
                         <div class="quizoption">
-                            <input type="submit" form="quizForm" name="quizType" value="Music"></inputs>
+                            <input type="submit" name="quizType" value="Music">
                         </div>
                     </div>
                 </form>
