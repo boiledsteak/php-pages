@@ -1,3 +1,8 @@
 tim=40
 eunice=50
-john	=60 
+john=60
+charles=90
+noon=90
+ray=90
+han=90bryan=90
+solo=90

@@ -36,7 +36,7 @@ class Header
     }
 }
 
-//router
+//router API
 switch ($request) {
     case '':
     case '/':
@@ -119,10 +119,13 @@ switch ($request) {
                             } 
                             else 
                             {
-                                // User not found
-                                echo "<h1>User not found</h1>";
-                                require __DIR__ . $viewDir . 'mainpage.php';
-                                break;
+                                // User not found                               
+                                // Append the user's input nickname and a default score of 90 to the file
+                                $newEntry = "$name=90\n";
+                                file_put_contents($filepath, $newEntry, FILE_APPEND);
+
+                                // Display a message about the appended entry
+                                echo "User added! Username: $name, Score: 90<br>";
                             }
                         } 
                         else 
