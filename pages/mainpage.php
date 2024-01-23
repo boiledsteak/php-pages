@@ -25,7 +25,7 @@
                         <div class="thename">
                             Enter your nickname!
                         </div>
-                        <input type="text" id="fname" name="fname">
+                        <input type="text" id="fname" name="fname" required>
                     </div>
 
                     <div class="quizprompt">
