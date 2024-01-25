@@ -27,29 +27,57 @@ class User
 // $user = new User();
 
 //prints the header component
-class Header 
+function headerComponent() 
 {
-    public function header() 
-    {
-        echo 
-        '
-        <div class="outerhead">
-            <div class="thehead">
-                <a class="thelogo" href="/">
-                    Funny facts
-                </a>
-                <div class="menoptions">
-                    <div class="menoption" >
-                        <a href="/results">results</a>
-                    </div>
-                    <div class="menoption">
-                        <a href="/leaderboard">leaderboard</a>
-                    </div>
+    echo 
+    '
+    <div class="outerhead">
+        <div class="thehead">
+            <a class="thelogo" href="/">
+                Funny facts
+            </a>
+            <div class="menoptions">
+                <div class="menoption">
+                    <a href="/results">results</a>
+                </div>
+                <div class="menoption">
+                    <a href="/leaderboard">leaderboard</a>
                 </div>
             </div>
         </div>
-        ';
-    }
+    </div>
+    ';
+}
+
+function registerComponent()
+{
+    echo
+    '
+    <div class="mainpagefn">
+        <form class="nameform" method="post" action="/register">
+            <div class="namebox">
+                <div class="thename">
+                    Enter your nickname!
+                </div>
+                <input type="text" id="fname" name="fname" required>
+            </div>
+
+            <div class="quizprompt">
+                <p>
+                    Pick a quiz
+                </p>
+            </div>
+            <div class="quizoptions">
+                <div class="quizoption">
+                    <input class="hvr-wobble-skew" type="submit" name="quizType" value="Country">
+                </div>
+                <div class="quizoption">
+                    <input class="hvr-wobble-skew" type="submit" name="quizType" value="Music">
+                </div>
+            </div>
+        </form>
+    </div>
+    ';
 }
 
 //router API
@@ -232,6 +260,50 @@ switch ($request)
                 echo "is it working? this should be the country quiz page<br>";
                 echo $user->name . "<br>";
                 echo $user->points . "<br>";
+
+                // Read the cquiz.txt file
+                $quizFilePath = 'cquiz.txt';
+                $quizContent = file_get_contents($quizFilePath);
+
+                // if file can be read
+                if ($quizContent !== false)
+                {
+                    // Explode the content into an array of lines
+                    $quizLines = explode("\n", $quizContent);
+
+                    // Loop through each line and prompt the user
+                    foreach ($quizLines as $quizLine) 
+                    {
+                        // Skip empty lines
+                        if (empty($quizLine)) 
+                        {
+                            continue;
+                        }
+
+                        // Split the line into the statement and the correct answer
+                        list($statement, $correctAnswer) = explode('=', $quizLine);
+
+                        // Output the statement and prompt the user
+                        echo $statement . '<br>';
+                        echo 'True or False? <br>';
+
+                        // Add logic here to handle the user's input (true/false)
+                        // For example, you can have a form with radio buttons for each statement.
+
+                       
+                    }
+                }
+                else 
+                {
+                    // Error reading the quiz file
+                    error_log("Error reading quiz file");
+                    echo "<h1>Something went wrong!!! Please try again</h1>";
+                    require __DIR__ . $viewDir . 'mainpage.php';
+                    break;
+
+                }
+
+                
             } 
             else 
             {

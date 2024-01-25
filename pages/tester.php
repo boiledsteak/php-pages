@@ -35,11 +35,12 @@
 <body>
     <div class="page">
         <?php
-            echo $header;
+        $header->header();
         ?>
         <div class="canvas">
             <?php    
-                echo $component;
+            // Output the content based on the selected component
+            $component->render();
             ?>
         </div>
     </div>
