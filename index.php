@@ -23,13 +23,11 @@ class User
     }
 }
 
-// // Create an instance of the User class
-// $user = new User();
 
 //prints the header component
 function headerComponent() 
 {
-    echo 
+    return 
     '
     <div class="outerhead">
         <div class="thehead">
@@ -51,33 +49,94 @@ function headerComponent()
 
 function registerComponent()
 {
-    echo
+    return
     '
-    <div class="mainpagefn">
-        <form class="nameform" method="post" action="/register">
-            <div class="namebox">
-                <div class="thename">
-                    Enter your nickname!
+    <div class="canvas">
+        <div class="mainpagefn">
+            <form class="nameform" method="post" action="/register">
+                <div class="namebox">
+                    <div class="thename">
+                        Enter your nickname!
+                    </div>
+                    <input type="text" id="fname" name="fname" required>
                 </div>
-                <input type="text" id="fname" name="fname" required>
-            </div>
 
-            <div class="quizprompt">
-                <p>
-                    Pick a quiz
-                </p>
-            </div>
-            <div class="quizoptions">
-                <div class="quizoption">
-                    <input class="hvr-wobble-skew" type="submit" name="quizType" value="Country">
+                <div class="quizprompt">
+                    <p>
+                        Pick a quiz
+                    </p>
                 </div>
-                <div class="quizoption">
-                    <input class="hvr-wobble-skew" type="submit" name="quizType" value="Music">
+                <div class="quizoptions">
+                    <div class="quizoption">
+                        <input class="hvr-wobble-skew" type="submit" name="quizType" value="Country">
+                    </div>
+                    <div class="quizoption">
+                        <input class="hvr-wobble-skew" type="submit" name="quizType" value="Music">
+                    </div>
                 </div>
-            </div>
-        </form>
+            </form>
+        </div>
     </div>
     ';
+}
+
+function countryComponent()
+{
+    $statements = [
+        "Singapore is the world's only island city-state=true",
+        "It is illegal to sell chewing gum in Singapore=true",
+        "Singapore has merlions=true",
+        "Malaysia has twin towers=true",
+        "Najib is Malaysia's national treasure=true",
+        "Malaysia to Singapore 3:1=true",
+        "Japan is the leader in the porn industry=true",
+        "Most Japanese don't consider prostitution as cheating=true",
+    ];
+
+
+    $html = '
+        <div class="canvas">
+            <div class="countrytitle">
+                Hello John! This is the country quiz
+            </div>
+            <form action="/submit" method="post">
+                <div class="quizquestion">
+                    <div class="container">                
+                        <ul>';
+
+    foreach ($statements as $statement) {
+        // Skip empty statements
+        if (empty($statement)) {
+            continue;
+        }
+
+        // Add each statement with true/false options
+        $html .= '
+                            <li>
+                                ' . $statement . '
+                                <br>
+                                <input type="radio" name="answers[' . htmlspecialchars($statement) . ']" value="true">
+                                <label>True</label>
+                                <input type="radio" name="answers[' . htmlspecialchars($statement) . ']" value="false">
+                                <label>False</label>
+                            </li>
+                            ';
+    }
+
+    // Close the HTML
+    $html .= '
+                        </ul>
+                    </div>
+                </div>
+                <!-- Submit button container -->
+                <div class="submit-container">
+                    <!-- Submit button -->
+                    <button type="submit">Submit</button>
+                </div>
+            </form>
+        </div>';
+
+    return $html;
 }
 
 //router API
@@ -257,53 +316,10 @@ switch ($request)
             // Check if user is logged in
             if ($user) 
             {
-                echo "is it working? this should be the country quiz page<br>";
-                echo $user->name . "<br>";
-                echo $user->points . "<br>";
-
-                // Read the cquiz.txt file
-                $quizFilePath = 'cquiz.txt';
-                $quizContent = file_get_contents($quizFilePath);
-
-                // if file can be read
-                if ($quizContent !== false)
-                {
-                    // Explode the content into an array of lines
-                    $quizLines = explode("\n", $quizContent);
-
-                    // Loop through each line and prompt the user
-                    foreach ($quizLines as $quizLine) 
-                    {
-                        // Skip empty lines
-                        if (empty($quizLine)) 
-                        {
-                            continue;
-                        }
-
-                        // Split the line into the statement and the correct answer
-                        list($statement, $correctAnswer) = explode('=', $quizLine);
-
-                        // Output the statement and prompt the user
-                        echo $statement . '<br>';
-                        echo 'True or False? <br>';
-
-                        // Add logic here to handle the user's input (true/false)
-                        // For example, you can have a form with radio buttons for each statement.
-
-                       
-                    }
-                }
-                else 
-                {
-                    // Error reading the quiz file
-                    error_log("Error reading quiz file");
-                    echo "<h1>Something went wrong!!! Please try again</h1>";
-                    require __DIR__ . $viewDir . 'mainpage.php';
-                    break;
-
-                }
-
                 
+                require __DIR__ . $viewDir . 'mainpage.php';
+                break;
+
             } 
             else 
             {

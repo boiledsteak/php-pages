@@ -33,15 +33,12 @@
     ?>
 </head>
 <body>
-    <div class="page">
         <?php
             echo $header;
+            echo $component;
         ?>
-        <div class="canvas">
-            <?php    
-                echo $component;
-            ?>
-        </div>
-    </div>
+        <div class="btm"></div>
+   
 </body>
+
 </html>

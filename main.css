@@ -33,7 +33,7 @@ a {
     text-decoration:none;
 }
 
-.page
+body
 {
     display: flex;
     flex-direction: column;
@@ -91,7 +91,7 @@ a {
     
     margin: auto;
     margin-top: 50px;
-    
+    width: 400px ;
 
 }
 
@@ -226,8 +226,57 @@ a {
 
   /* END wobble skew */
 
+
+
+/* 
+
+============================ START country page 
+*/
+ul
+{
+  list-style-type: none;
+}
+
+
 .quizprompt
 {
     display: flex;
     justify-content: center;
 }
+
+.countrytitle
+{
+  height: 80px;
+  font-family: 'Roboto', sans-serif;
+}
+
+/* START radio button styling */
+
+/* Add the submit button styling */
+
+.submit-container button
+{
+  float: right;
+  cursor: pointer;
+  font-size: 32px;
+}
+
+.submit-container button:hover 
+{
+  text-decoration: underline;
+}
+
+/* END radio button styling */
+
+/* 
+
+============================ END country page 
+*/
+
+.btm
+{
+  width: 100%;
+  height: 65px;
+}
+
+
