@@ -1,8 +1,8 @@
-Singapore is the world's only island city-state=true
-It is illegal to sell chewing gum in Singapore=true
-Singapore has merlions=true
-Malaysia has twin towers=true
-Najib is Malaysia's national treasure=true
-Malaysia to Singapore 3:1=true
-Japan is the leader in porn industry=true
-Most Japanese don't consider prostitution as cheating=true
+Singapore is the world's only island city-state=yes
+It is illegal to sell chewing gum in Singapore=no
+Singapore has merlions=yes
+Malaysia has twin towers=yes
+Najib is Malaysia's national treasure=yes
+Malaysia to Singapore 3:1=yes
+Japan is the leader in porn industry=yes
+Most Japanese don't consider prostitution as cheating=yes

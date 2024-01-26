@@ -1,64 +1,25 @@
-// Function to generate the country component HTML
-function getCountryComponent(array $statements)
-{
-    $html = '
-        <div class="canvas">
-            <div class="countrytitle">
-                Hello John! This is the country quiz
-            </div>
-            <form action="/submit" method="post">
-                <div class="quizquestion">
-                    <div class="container">                
-                        <ul>';
+// Initialize an empty array to store statements
+$statements = [];
 
-    foreach ($statements as $statement) {
-        // Skip empty statements
-        if (empty($statement)) {
+// if file can be read
+if ($quizContent !== false) {
+    // Explode the content into an array of lines
+    $quizLines = explode("\n", $quizContent);
+
+    // Loop through each line and add statements to the array
+    foreach ($quizLines as $quizLine) {
+        // Skip empty lines
+        if (empty($quizLine)) {
             continue;
         }
 
-        // Add each statement with true/false options
-        $html .= '
-                            <li>
-                                ' . $statement . '
-                            </li>
-                            <li>
-                                <input type="radio" name="answers[' . htmlspecialchars($statement) . ']" value="true">
-                                <label>True</label>
-                            </li>
-                            <li>
-                                <input type="radio" name="answers[' . htmlspecialchars($statement) . ']" value="false">
-                                <label>False</label>
-                            </li>';
+        // Split the line into the statement and the correct answer
+        list($statement, $correctAnswer) = explode('=', $quizLine);
+
+        // Add the statement to the array
+        $statements[$statement] = $correctAnswer === 'true'; // Store if the correct answer is true
     }
 
-    // Close the HTML
-    $html .= '
-                        </ul>
-                    </div>
-                </div>
-                <!-- Submit button container -->
-                <div class="submit-container">
-                    <!-- Submit button -->
-                    <button type="submit">Submit</button>
-                </div>
-            </form>
-        </div>';
-
-    return $html;
+    // Store the entire $statements array in the session after the loop
+    $_SESSION['quiz_statements'] = $statements;
 }
-
-// Example statements array
-$statements = [
-    "Singapore is the world's only island city-state=true",
-    "It is illegal to sell chewing gum in Singapore=true",
-    "Singapore has merlions=true",
-    "Malaysia has twin towers=true",
-    "Najib is Malaysia's national treasure=true",
-    "Malaysia to Singapore 3:1=true",
-    "Japan is the leader in the porn industry=true",
-    "Most Japanese don't consider prostitution as cheating=true",
-];
-
-// Output the country component with the provided statements
-echo getCountryComponent($statements);

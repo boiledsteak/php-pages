@@ -38,6 +38,7 @@ body
     display: flex;
     flex-direction: column;
     margin: auto;
+    min-width: 520px;
 }
 
 .outerhead
@@ -91,7 +92,8 @@ body
     
     margin: auto;
     margin-top: 50px;
-    width: 400px ;
+    width: 500px;
+    
 
 }
 
@@ -232,6 +234,25 @@ body
 
 ============================ START country page 
 */
+
+.container
+{
+  
+  border-radius: 10px 10px 10px 10px;
+  -moz-border-radius: 10px 10px 10px 10px;
+  -webkit-border-radius: 10px 10px 10px 10px;
+  border: 1px solid #000000;
+  padding: 35px 10px;
+  
+  
+}
+
+li
+{
+  padding: 40px 40px;
+  
+}
+
 ul
 {
   list-style-type: none;
@@ -250,23 +271,33 @@ ul
   font-family: 'Roboto', sans-serif;
 }
 
-/* START radio button styling */
 
-/* Add the submit button styling */
+
+/* submit button styling */
 
 .submit-container button
 {
-  float: right;
   cursor: pointer;
   font-size: 32px;
+  margin-right: 10px;
+}
+
+.submit-container
+{
+  display: flex;
+  justify-content: flex-end;
+  border-top: 1px solid grey;
+  margin-top: 50px;
+  width: 100%;
 }
 
 .submit-container button:hover 
 {
-  text-decoration: underline;
+  color: salmon;
 }
 
-/* END radio button styling */
+
+
 
 /* 
 
