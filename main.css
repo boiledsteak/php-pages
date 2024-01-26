@@ -311,3 +311,37 @@ ul
 }
 
 
+/* 
+
+============================== START music page
+*/
+
+li img
+{
+  max-width: 140px;
+  max-height: 140px;
+}
+
+.musiclist
+{
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-evenly;
+}
+
+.musicrow
+{
+  padding: 40px 40px;
+  display: flex;
+  flex-direction: column;
+  width: 140px;
+}
+
+.musicresponse
+{
+  width: 130px;
+  margin: 10px 0px;
+  padding: 0px 5px;
+  height: 30px;
+  border: 1px solid black;
+}

@@ -1,93 +1,68 @@
-// Function to update user score in the file
-function updateUserScoreToFile($user) {
-    $filepath = 'testing.txt';
+// ... (previous code)
 
-    // Check if the file exists
-    if (file_exists($filepath)) 
-    {
-        // Read existing scores into an associative array
-        $fileContent = file_get_contents($filepath);
-        $lines = explode("\n", $fileContent);
-        $scores = array();
-
-        foreach ($lines as $line) 
-        {
-            if (!empty($line)) 
-            {
-                $parts = explode('=', $line);
-                $username = $parts[0];
-                $score = $parts[1];
-                $scores[$username] = $score;
-            }
-        }
-
-        // Update the user's score in the scores array
-        $scores[$user->name] = $user->points;
-
-        // Write the updated scores back to the file
-        $newContent = '';
-        foreach ($scores as $username => $score) 
-        {
-            $newContent .= "$username=$score\n";
-        }
-        file_put_contents($filepath, $newContent);
-    }
-}
-
-// ...
-
-case '/submit':
+case '/submitmusic':
 {
-    // Retrieve the correct statements and answers from the session
-    $correctStatements = $_SESSION['quiz_statements'] ?? [];
+    // Retrieve the correct answers and user input from the session
+    $correctAnswers = $_SESSION['quiz_questions'] ?? [];
+    $userAnswers = $_POST['answers'] ?? [];
 
     // Check if user is logged in
     $user = $_SESSION['user'] ?? null;
 
     if ($user) 
     {
-        // Get user's input statements and answers
-        $userAnswers = $_POST['answers'] ?? [];
-
         // Check if any user answer is empty
         if (in_array('', $userAnswers, true)) 
         {
-            // Redirect back to /country if any answer is empty
-            header('Location: /country');
+            // Redirect back to /music if any answer is empty
+            header('Location: /music');
             exit;
         }
 
-        // Initialize counters for correct and wrong statements
+        // Initialize counters for correct and wrong answers
         $correctCount = 0;
         $wrongCount = 0;
 
+        // Prepare HTML for displaying results
+        $htmlResults = '
+        <div class="canvas">
+            <div class="countrytitle">
+                Hello ' . htmlspecialchars($user->name) . '! Results for the Music Quiz
+            </div>
+            <div class="quizresults">
+                <h2>Results:</h2>
+                <ul>';
+
         // Compare user's answers with correct answers
-        foreach ($correctStatements as $statement) 
+        foreach ($correctAnswers as $index => $question) 
         {
-            $userAnswer = $userAnswers[$statement['statement']] ?? null;
-
-            if ($userAnswer !== null) 
+            // Skip empty questions
+            if (empty($question['path'])) 
             {
-                // Check if the user's answer matches the correct answer
-                $isCorrect = ($userAnswer === 'true') === $statement['correctAnswer'];
+                continue;
+            }
 
-                // Update counts
-                if ($isCorrect) {
-                    $correctCount++;
-                } else {
-                    $wrongCount++;
-                }
+            // Get user's answer for the current question
+            $userAnswer = $userAnswers[$index] ?? '';
+
+            // Check if the user's answer matches the correct answer
+            $isCorrect = strtolower(trim($userAnswer)) === strtolower(trim($question['correctAnswer']));
+            
+            // Update counts and prepare HTML for each result
+            if ($isCorrect) 
+            {
+                $correctCount++;
+                $htmlResults .= '<li class="correct">Question ' . ($index + 1) . ': Correct!</li>';
+            } 
+            else 
+            {
+                $wrongCount++;
+                $htmlResults .= '<li class="wrong">Question ' . ($index + 1) . ': Incorrect. Correct Answer: ' . htmlspecialchars($question['correctAnswer']) . '</li>';
             }
         }
 
         // Calculate total points
         $totalPoints = ($correctCount * 4) - ($wrongCount * 2);
-
-        // Print the counts and total points
-        echo "<h2>Results:</h2>";
-        echo "<p>Number of correct statements: $correctCount</p>";
-        echo "<p>Number of wrong statements: $wrongCount</p>";
-        echo "<p>Total Points: $totalPoints</p>";
 
         // Update user's points in the session
         $user->points += $totalPoints;
@@ -95,6 +70,19 @@ case '/submit':
 
         // Update user score in the file
         updateUserScoreToFile($user);
+
+        // Append the total points to the HTML results
+        $htmlResults .= '
+            </ul>
+            <p>Total Points: ' . $totalPoints . '</p>
+        </div>
+        </div>';
+
+        // Display results
+        require __DIR__ . $viewDir . 'mainpage.php';
+        headerComponent();
+        echo $htmlResults;
+        btmComponent();
     } 
     else 
     {
@@ -102,8 +90,7 @@ case '/submit':
         header('Location: /');
         exit;
     }
-
     break;
 }
 
-// ...
+// ... (remaining code)

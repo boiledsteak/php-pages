@@ -9,7 +9,8 @@ error_reporting(E_ALL & ~E_NOTICE);
 
 $request = strtolower($_SERVER['REQUEST_URI']);
 $viewDir = '/pages/';
-
+$musicDir = '/pics/';
+$userRecord = 'userRecord.txt';
 // Define the User class
 class User
 {
@@ -86,13 +87,12 @@ function registerComponent()
 // Function to update user score in the file
 function updateUserScoreToFile($user) 
 {
-    $filepath = 'testing.txt';
-
+    global $userRecord;
     // Check if the file exists
-    if (file_exists($filepath)) 
+    if (file_exists($userRecord)) 
     {
         // Read existing scores into an associative array
-        $fileContent = file_get_contents($filepath);
+        $fileContent = file_get_contents($userRecord);
         $lines = explode("\n", $fileContent);
         $scores = array();
 
@@ -116,7 +116,7 @@ function updateUserScoreToFile($user)
         {
             $newContent .= "$username=$score\n";
         }
-        file_put_contents($filepath, $newContent);
+        file_put_contents($userRecord, $newContent);
     }
 }
 
@@ -180,12 +180,12 @@ switch ($request) {
                 // validate quiz type
                 if ($quiz === 'Country' || $quiz === 'Music') 
                 {
-                    $filepath = 'testing.txt';
+                    global $userRecord;
                     // Check if the file exists
-                    if (file_exists($filepath)) 
+                    if (file_exists($userRecord)) 
                     {
                         // Read file content into an associative array
-                        $fileContent = file_get_contents($filepath);
+                        $fileContent = file_get_contents($userRecord);
                         $lines = explode("\n", $fileContent);
                         $scores = array();
                         foreach ($lines as $line) 
@@ -222,7 +222,7 @@ switch ($request) {
                             // User not found                               
                             // Append the user's input nickname and a default score of 90 to the file
                             $newEntry = "$name=0\n";
-                            file_put_contents($filepath, $newEntry, FILE_APPEND);
+                            file_put_contents($userRecord, $newEntry, FILE_APPEND);
                             $user->name = $name;
                             $user->points = 0;
                             // Store user object in the session
@@ -261,22 +261,116 @@ switch ($request) {
     }
 
     case '/music':
-    {
-        // Retrieve user object from the session
-        $user = $_SESSION['user'] ?? null;
-        // Check if user is logged in
-        if ($user) {
-            echo "is it working? this should be the country quiz page<br>";
-            echo $user->name . "<br>";
-            echo $user->points . "<br>";
-        } else {
-            // Redirect back
-            header('Location: /');
-            exit;
-        }
-        break;
-    }
+        {
+            // Retrieve user object from the session
+            $user = $_SESSION['user'] ?? null;
+            // Check if user is logged in
+            if ($user) 
+            {
+                // Read the mquiz.txt file
+                $quizFilePath = 'mquiz.txt';
+                $quizContent = file_get_contents($quizFilePath);
+        
+                // Initialize an empty array to store pic paths
+                $questions = [];
+        
+                // if file can be read
+                if ($quizContent !== false) 
+                {
+                    // Explode the content into an array of lines
+                    $quizLines = explode("\n", $quizContent);
+        
+                    // Loop through each line and add questions to the array
+                    foreach ($quizLines as $quizLine) 
+                    {
+                        if (empty($quizLine)) 
+                        {
+                            continue;
+                        }
+        
+                        list($filename, $correctAnswer) = explode('=', $quizLine);
+                        $path = $musicDir . $filename; // Include the $musicDir in the path
+        
+                        // Add the question to the array
+                        $questions[] = [
+                            'path' => $path,
+                            'correctAnswer' => $correctAnswer,
+                        ];
+                    }
+        
+                    $_SESSION['quiz_questions'] = $questions;
+        
+                    // Display the quiz questions
+                    $html = '
+                    <div class="canvas">
+                        <div class="countrytitle">
+                            Hello ' . htmlspecialchars($user->name) . '! This is the music quiz
+                        </div>
+                        <form action="/submitmusic" method="post">
+                            <div class="container">
+                                <div class="titleqn">
+                                    What is the name of the song?
+                                </div>
+                                <div class="musicquiz">
+                                    <ul class="musiclist">';
 
+                    foreach ($questions as $index => $question) 
+                    {
+                        // Skip empty questions
+                        if (empty($question['path'])) 
+                        {
+                            continue;
+                        }
+
+                        // Add each question with an image and a textbox
+                        $html .= '
+                            <li class="musicrow">
+                                <img src="' . htmlspecialchars($question['path']) . '" alt="Music Picture" ">                           
+                                <input class="musicresponse" type="text" name="answers[' . $index . ']" id="' . $index . '" required>
+                            </li>
+                        ';
+
+                        
+                    }
+
+                    // Close the HTML
+                    $html .= '
+                                    </ul>
+                                </div>
+                                
+                            </div>
+                            <!-- Submit button container -->
+                                <div class="submit-container">
+                                    <!-- Submit button -->
+                                    <button type="submit">Submit</button>
+                                </div>
+                        </form>
+                    </div>';
+
+                    
+                    require __DIR__ . $viewDir . 'mainpage.php';
+                    headerComponent();
+                    echo $html;
+                    btmComponent();
+                } 
+                else 
+                {
+                    // Error reading the quiz file
+                    error_log("Error reading quiz file");
+                    echo "<h1>Something went wrong!!! Please try again</h1>";
+                    return;
+                }
+        
+            } 
+            else 
+            {
+                // Redirect back
+                header('Location: /');
+                exit;
+            }
+            break;
+        }
+                
     case '/country':
     {
         // Retrieve user object from the session
@@ -329,7 +423,7 @@ switch ($request) {
                 <div class="countrytitle">
                     Hello ' . htmlspecialchars($user->name) . '! This is the country quiz
                 </div>
-                <form action="/submit" method="post">
+                <form action="/submitCountry" method="post">
                     <div class="quizquestion">
                         <div class="container">                
                             <ul>';
@@ -378,10 +472,11 @@ switch ($request) {
         }
     }
 
-    case '/submit':
+    case '/submitcountry':
         {
-            // Retrieve the correct statements and answers from the session
+            // Retrieve the correct statements and user input from the session
             $correctStatements = $_SESSION['quiz_statements'] ?? [];
+            $userAnswers = $_POST['answers'] ?? [];
         
             // Check if user is logged in
             $user = $_SESSION['user'] ?? null;
@@ -390,7 +485,7 @@ switch ($request) {
             {
                 // Get user's input statements and answers
                 $userAnswers = $_POST['answers'] ?? [];
-        
+                
                 // Check if any user answer is empty
                 if (in_array('', $userAnswers, true)) 
                 {
@@ -407,41 +502,52 @@ switch ($request) {
                 foreach ($correctStatements as $statement) 
                 {
                     $userAnswer = $userAnswers[$statement['statement']] ?? null;
-                    
-                    //check if user somehow submit empty answer
+        
+                    // Check if the user's answer matches the correct answer
                     if ($userAnswer !== null) 
                     {
-                        // Check if the user's answer matches the correct answer
                         $isCorrect = ($userAnswer === 'true') === $statement['correctAnswer'];
-        
+                        
                         // Update counts
-                        if ($isCorrect) {
+                        if ($isCorrect) 
+                        {
                             $correctCount++;
-                        } else {
+                        } 
+                        else 
+                        {
                             $wrongCount++;
                         }
                     }
                 }
-
+        
                 // Calculate total points
                 $totalPoints = ($correctCount * 4) - ($wrongCount * 2);
-
+        
                 // Update user's points in the session
                 $user->points += $totalPoints;
                 $_SESSION['user'] = $user;
-
+        
                 // Update user score in the file
                 updateUserScoreToFile($user);
         
-                // Print the counts
+                // Prepare HTML for displaying results
+                $htmlResults = '
+                <div class="canvas">
+                    <div class="countrytitle">
+                        Hello ' . htmlspecialchars($user->name) . '! Results for the Country Quiz
+                    </div>
+                    <div class="quizresults">
+                        <h2>Results:</h2>
+                        <p>Number of correct statements: ' . $correctCount . '</p>
+                        <p>Number of wrong statements: ' . $wrongCount . '</p>
+                        <p>Total Score: ' . $totalPoints . '</p>
+                        <ul>';
+        
+                // Display results
                 require __DIR__ . $viewDir . 'mainpage.php';
                 headerComponent();
-                echo "<h2>Results:</h2>";
-                echo "<p>Number of correct statements: $correctCount</p>";
-                echo "<p>Number of wrong statements: $wrongCount</p>";
-                echo "<p>Total Points: $totalPoints</p>";
+                echo $htmlResults;
                 btmComponent();
-                
             } 
             else 
             {
@@ -449,11 +555,95 @@ switch ($request) {
                 header('Location: /');
                 exit;
             }
-        
             break;
         }
-              
 
+    case '/submitmusic':
+        {
+            // Retrieve the correct answers and user input from the session
+            $correctAnswers = $_SESSION['quiz_questions'] ?? [];
+            $userAnswers = $_POST['answers'] ?? [];
+        
+            // Check if user is logged in
+            $user = $_SESSION['user'] ?? null;
+        
+            if ($user) 
+            {
+                // Check if any user answer is empty
+                if (in_array('', $userAnswers, true)) 
+                {
+                    // Redirect back to /music if any answer is empty
+                    header('Location: /music');
+                    exit;
+                }
+        
+                // Initialize counters for correct and wrong answers
+                $correctCount = 0;
+                $wrongCount = 0;
+        
+                // Compare user's answers with correct answers
+                foreach ($correctAnswers as $index => $question) 
+                {
+                    // Skip empty questions
+                    if (empty($question['path'])) 
+                    {
+                        continue;
+                    }
+        
+                    // Get user's answer for the current question
+                    $userAnswer = $userAnswers[$index] ?? '';
+        
+                    // Check if the user's answer matches the correct answer
+                    $isCorrect = strtolower(trim($userAnswer)) === strtolower(trim($question['correctAnswer']));
+                    
+                    // Update counts
+                    if ($isCorrect) 
+                    {
+                        $correctCount++;
+                    } 
+                    else 
+                    {
+                        $wrongCount++;
+                    }
+                }
+        
+                // Calculate total points, ensuring it's not negative
+                $totalPoints = max(0, ($correctCount * 4) - ($wrongCount * 2));
+        
+                // Update user's points in the session
+                $user->points += $totalPoints;
+                $_SESSION['user'] = $user;
+        
+                // Update user score in the file
+                updateUserScoreToFile($user);
+        
+                // Prepare HTML for displaying results
+                $htmlResults = '
+                <div class="canvas">
+                    <div class="countrytitle">
+                        Hello ' . htmlspecialchars($user->name) . '! Results for the Music Quiz
+                    </div>
+                    <div class="quizresults">
+                        <h2>Results:</h2>
+                        <p>Number of correct answers: ' . $correctCount . '</p>
+                        <p>Number of wrong answers: ' . $wrongCount . '</p>
+                        <p>Total Score: ' . $totalPoints . '</p>
+                        <ul>';
+        
+                // Display results
+                require __DIR__ . $viewDir . 'mainpage.php';
+                headerComponent();
+                echo $htmlResults;
+                btmComponent();
+            } 
+            else 
+            {
+                // Redirect back if the user is not logged in
+                header('Location: /');
+                exit;
+            }
+            break;
+        }
     default:
     {
         http_response_code(404);
