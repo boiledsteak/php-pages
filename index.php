@@ -23,7 +23,6 @@ class User
     }
 }
 
-// Prints the header component
 function headerComponent()
 {
     echo '
@@ -45,14 +44,16 @@ function headerComponent()
     ';
 }
 
-// Router API
-switch ($request) {
+function btmComponent()
+{
+    echo '
+    <div class="btm"></div>
+    ';
+}
 
-    case '/':
-    {
-        headerComponent();
-
-        echo '
+function registerComponent()
+{
+    echo '
         <div class="canvas">
             <div class="mainpagefn">
                 <form class="nameform" method="post" action="/register">
@@ -80,8 +81,54 @@ switch ($request) {
             </div>
         </div>
         ';
+}
 
+// Function to update user score in the file
+function updateUserScoreToFile($user) 
+{
+    $filepath = 'testing.txt';
+
+    // Check if the file exists
+    if (file_exists($filepath)) 
+    {
+        // Read existing scores into an associative array
+        $fileContent = file_get_contents($filepath);
+        $lines = explode("\n", $fileContent);
+        $scores = array();
+
+        foreach ($lines as $line) 
+        {
+            if (!empty($line)) 
+            {
+                $parts = explode('=', $line);
+                $username = $parts[0];
+                $score = $parts[1];
+                $scores[$username] = $score;
+            }
+        }
+
+        // Update the user's score in the scores array
+        $scores[$user->name] = $user->points;
+
+        // Write the updated scores back to the file
+        $newContent = '';
+        foreach ($scores as $username => $score) 
+        {
+            $newContent .= "$username=$score\n";
+        }
+        file_put_contents($filepath, $newContent);
+    }
+}
+
+// Router API
+switch ($request) {
+
+    case '/':
+    {
         require __DIR__ . $viewDir . 'mainpage.php';
+        headerComponent();
+        registerComponent();
+        btmComponent();      
         break;
     }
 
@@ -95,21 +142,20 @@ switch ($request) {
     case '/results':
     {
         echo "is it working? This thing thign should be the results";
-        // require __DIR__ . $viewDir . 'contact.php';
         break;
     }
 
     case '/leaderboard':
     {
-        echo "is it working? this should be the leaderboard";
-        // require __DIR__ . $viewDir . 'contact.php';
+        
         break;
     }
 
     case '/register':
     {
         // get data from form
-        if ($_SERVER["REQUEST_METHOD"] == "POST") {
+        if ($_SERVER["REQUEST_METHOD"] == "POST") 
+        {
             $name = strtolower(htmlspecialchars($_POST['fname']));
             $quiz = htmlspecialchars($_POST['quizType']);
 
@@ -117,26 +163,35 @@ switch ($request) {
             $user = new User();
 
             // validate name
-            if (empty($name)) {
+            if (empty($name)) 
+            {
                 echo "<h1>Please enter name!!!!</h1>";
                 require __DIR__ . $viewDir . 'mainpage.php';
                 break;
-            } elseif (!preg_match("/^[a-zA-Z]*$/", $name)) {
+            } 
+            elseif (!preg_match("/^[a-zA-Z]*$/", $name)) 
+            {
                 echo "<h1>Only letters allowed !!!! And no whitespace</h1>";
                 require __DIR__ . $viewDir . 'mainpage.php';
                 break;
-            } else {
+            } 
+            else 
+            {
                 // validate quiz type
-                if ($quiz === 'Country' || $quiz === 'Music') {
+                if ($quiz === 'Country' || $quiz === 'Music') 
+                {
                     $filepath = 'testing.txt';
                     // Check if the file exists
-                    if (file_exists($filepath)) {
+                    if (file_exists($filepath)) 
+                    {
                         // Read file content into an associative array
                         $fileContent = file_get_contents($filepath);
                         $lines = explode("\n", $fileContent);
                         $scores = array();
-                        foreach ($lines as $line) {
-                            if (!empty($line)) {
+                        foreach ($lines as $line) 
+                        {
+                            if (!empty($line)) 
+                            {
                                 $parts = explode('=', $line);
                                 $username = $parts[0];
                                 $score = $parts[1];
@@ -145,53 +200,56 @@ switch ($request) {
                         }
 
                         // Check if the entered nickname exists in the array
-                        if (array_key_exists($name, $scores)) {
-                            // Output the username and score for the entered nickname
-                            echo "User found!<br>";
-
+                        if (array_key_exists($name, $scores)) 
+                        {
                             $user->name = $name;
                             $user->points = (int)$scores[$name];
-
-                            echo 'Username: ' . $user->name . ", Score: " . $user->points . "<br>";
                             // Store user object in the session
                             $_SESSION['user'] = $user;
                             // redirect to music or country quiz
-                            if ($quiz === 'Country') {
+                            if ($quiz === 'Country') 
+                            {
                                 header('Location: /country');
                                 exit;
-                            } elseif ($quiz === 'Music') {
+                            } elseif ($quiz === 'Music') 
+                            {
                                 header('Location: /music');
                                 exit;
                             }
-                        } else {
+                        } 
+                        else 
+                        {
                             // User not found                               
                             // Append the user's input nickname and a default score of 90 to the file
                             $newEntry = "$name=0\n";
                             file_put_contents($filepath, $newEntry, FILE_APPEND);
-
                             $user->name = $name;
                             $user->points = 0;
-
-                            // Display a message about the appended entry
-                            echo 'User added! Username: ' . $user->name . ", Score: " . $user->points . "<br>";
                             // Store user object in the session
                             $_SESSION['user'] = $user;
                             // redirect to music or country quiz
-                            if ($quiz === 'Country') {
+                            if ($quiz === 'Country') 
+                            {
                                 header('Location: /country');
                                 exit;
-                            } elseif ($quiz === 'Music') {
+                            } 
+                            elseif ($quiz === 'Music') 
+                            {
                                 header('Location: /music');
                                 exit;
                             }
                         }
-                    } else {
+                    } 
+                    else 
+                    {
                         // File does not exist or error with file reading
                         echo "<h1>Something went wrong!!! Please try again</h1>";
                         require __DIR__ . $viewDir . 'mainpage.php';
                         break;
                     }
-                } else {
+                } 
+                else 
+                {
                     // quiz type not country or music
                     echo "<h1>Invalid quiz type. Please try again</h1>";
                     require __DIR__ . $viewDir . 'mainpage.php';
@@ -226,8 +284,6 @@ switch ($request) {
         // Check if user is logged in
         if ($user) 
         {
-            headerComponent();
-
             // Read the cquiz.txt file
             $quizFilePath = 'cquiz.txt';
             $quizContent = file_get_contents($quizFilePath);
@@ -308,11 +364,10 @@ switch ($request) {
                     </div>
                 </form>
             </div>';
-
-            echo $html;
-            
-
             require __DIR__ . $viewDir . 'mainpage.php';
+            headerComponent();
+            echo $html;
+            btmComponent();
             break;
         } 
         else 
@@ -335,7 +390,15 @@ switch ($request) {
             {
                 // Get user's input statements and answers
                 $userAnswers = $_POST['answers'] ?? [];
-                
+        
+                // Check if any user answer is empty
+                if (in_array('', $userAnswers, true)) 
+                {
+                    // Redirect back to /country if any answer is empty
+                    header('Location: /country');
+                    exit;
+                }
+        
                 // Initialize counters for correct and wrong statements
                 $correctCount = 0;
                 $wrongCount = 0;
@@ -344,7 +407,8 @@ switch ($request) {
                 foreach ($correctStatements as $statement) 
                 {
                     $userAnswer = $userAnswers[$statement['statement']] ?? null;
-        
+                    
+                    //check if user somehow submit empty answer
                     if ($userAnswer !== null) 
                     {
                         // Check if the user's answer matches the correct answer
@@ -358,11 +422,26 @@ switch ($request) {
                         }
                     }
                 }
+
+                // Calculate total points
+                $totalPoints = ($correctCount * 4) - ($wrongCount * 2);
+
+                // Update user's points in the session
+                $user->points += $totalPoints;
+                $_SESSION['user'] = $user;
+
+                // Update user score in the file
+                updateUserScoreToFile($user);
         
                 // Print the counts
+                require __DIR__ . $viewDir . 'mainpage.php';
+                headerComponent();
                 echo "<h2>Results:</h2>";
                 echo "<p>Number of correct statements: $correctCount</p>";
                 echo "<p>Number of wrong statements: $wrongCount</p>";
+                echo "<p>Total Points: $totalPoints</p>";
+                btmComponent();
+                
             } 
             else 
             {
@@ -373,7 +452,7 @@ switch ($request) {
         
             break;
         }
-        
+              
 
     default:
     {
