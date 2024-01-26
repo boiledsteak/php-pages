@@ -118,6 +118,8 @@ function updateUserScoreToFile($user)
     }
 }
 
+// TODO
+// create the "exit" page 
 
 // Router API
 switch ($request) {
