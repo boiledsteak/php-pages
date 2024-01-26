@@ -34,9 +34,6 @@ function headerComponent()
             </a>
             <div class="menoptions">
                 <div class="menoption">
-                    <a href="/results">results</a>
-                </div>
-                <div class="menoption">
                     <a href="/leaderboard">leaderboard</a>
                 </div>
             </div>
@@ -88,6 +85,7 @@ function registerComponent()
 function updateUserScoreToFile($user) 
 {
     global $userRecord;
+
     // Check if the file exists
     if (file_exists($userRecord)) 
     {
@@ -108,7 +106,7 @@ function updateUserScoreToFile($user)
         }
 
         // Update the user's score in the scores array
-        $scores[$user->name] = $user->points;
+        $scores[$user->name] += $_SESSION['current_user']['total_score'];
 
         // Write the updated scores back to the file
         $newContent = '';
@@ -119,6 +117,7 @@ function updateUserScoreToFile($user)
         file_put_contents($userRecord, $newContent);
     }
 }
+
 
 // Router API
 switch ($request) {
@@ -136,12 +135,6 @@ switch ($request) {
     {
         header('Content-Type: text/css');
         require __DIR__ . '/main.css';
-        break;
-    }
-
-    case '/results':
-    {
-        echo "is it working? This thing thign should be the results";
         break;
     }
 
@@ -474,6 +467,7 @@ switch ($request) {
 
     case '/submitcountry':
         {
+            
             // Retrieve the correct statements and user input from the session
             $correctStatements = $_SESSION['quiz_statements'] ?? [];
             $userAnswers = $_POST['answers'] ?? [];
@@ -483,6 +477,14 @@ switch ($request) {
         
             if ($user) 
             {
+                // If the user is not set in the session, create a new session variable for the current user
+                if (!isset($_SESSION['current_user'])) 
+                {
+                    $_SESSION['current_user'] = [
+                        'name' => $user->name,
+                        'total_score' => 0,
+                    ];
+                }
                 // Get user's input statements and answers
                 $userAnswers = $_POST['answers'] ?? [];
                 
@@ -522,13 +524,13 @@ switch ($request) {
         
                 // Calculate total points
                 $totalPoints = ($correctCount * 4) - ($wrongCount * 2);
-        
-                // Update user's points in the session
-                $user->points += $totalPoints;
-                $_SESSION['user'] = $user;
+                $_SESSION['current_user']['total_score'] += $totalPoints;
         
                 // Update user score in the file
                 updateUserScoreToFile($user);
+
+                // Get the cumulative score within the current session
+                $cumulativeScore = $_SESSION['current_user']['total_score'] ?? 0;
         
                 // Prepare HTML for displaying results
                 $htmlResults = '
@@ -540,8 +542,21 @@ switch ($request) {
                         <h2>Results:</h2>
                         <p>Number of correct statements: ' . $correctCount . '</p>
                         <p>Number of wrong statements: ' . $wrongCount . '</p>
-                        <p>Total Score: ' . $totalPoints . '</p>
-                        <ul>';
+                        <p>Total Score of your current attempts this sitting:' . $cumulativeScore . '</p>
+                    </div>
+
+                    <div class="optionsbox">
+                        <a href="/country" class="options">
+                        Try again
+                        </a>
+                        <a href="/music" class="options">
+                        Try music quiz
+                        </a>
+                    </div>
+
+                </div>    
+                        
+                        ';
         
                 // Display results
                 require __DIR__ . $viewDir . 'mainpage.php';
@@ -576,6 +591,15 @@ switch ($request) {
                     header('Location: /music');
                     exit;
                 }
+
+                // If the user is not set in the session, create a new session variable for the current user
+                if (!isset($_SESSION['current_user'])) 
+                {
+                    $_SESSION['current_user'] = [
+                        'name' => $user->name,
+                        'total_score' => 0,
+                    ];
+                }
         
                 // Initialize counters for correct and wrong answers
                 $correctCount = 0;
@@ -607,15 +631,15 @@ switch ($request) {
                     }
                 }
         
-                // Calculate total points, ensuring it's not negative
-                $totalPoints = max(0, ($correctCount * 4) - ($wrongCount * 2));
-        
-                // Update user's points in the session
-                $user->points += $totalPoints;
-                $_SESSION['user'] = $user;
+                // Calculate total points
+                $totalPoints = ($correctCount * 4) - ($wrongCount * 2);
+                $_SESSION['current_user']['total_score'] += $totalPoints;
         
                 // Update user score in the file
                 updateUserScoreToFile($user);
+
+                // Get the cumulative score within the current session
+                $cumulativeScore = $_SESSION['current_user']['total_score'] ?? 0;
         
                 // Prepare HTML for displaying results
                 $htmlResults = '
@@ -625,10 +649,23 @@ switch ($request) {
                     </div>
                     <div class="quizresults">
                         <h2>Results:</h2>
-                        <p>Number of correct answers: ' . $correctCount . '</p>
-                        <p>Number of wrong answers: ' . $wrongCount . '</p>
-                        <p>Total Score: ' . $totalPoints . '</p>
-                        <ul>';
+                        <p>Number of correct statements: ' . $correctCount . '</p>
+                        <p>Number of wrong statements: ' . $wrongCount . '</p>
+                        <p>Total Score of your current attempts this sitting:' . $cumulativeScore . '</p>
+                    </div>
+
+                    <div class="optionsbox">
+                        <a href="/music" class="options">
+                        Try again
+                        </a>
+                        <a href="/country" class="options">
+                        Try country quiz
+                        </a>
+                    </div>
+
+                </div>    
+                        
+                        ';
         
                 // Display results
                 require __DIR__ . $viewDir . 'mainpage.php';

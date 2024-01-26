@@ -345,3 +345,46 @@ li img
   height: 30px;
   border: 1px solid black;
 }
+
+/* 
+
+============================ END music page 
+*/
+
+
+/* 
+
+============================== START submit music page
+*/
+
+.optionsbox
+{
+  display: flex;
+  justify-content: space-evenly;
+}
+
+.options 
+{
+  margin: 80px 0px;
+  width: 140px;
+  height: 140px;
+  line-height: 140px;
+  border-radius: 50%;
+  -moz-border-radius: 50%;
+  -webkit-border-radius: 50%;
+  text-align: center;
+  color: black;
+  font-size: 16px;
+  font-weight:500;
+  border: 1px solid black;
+  font-family: 'Roboto', sans-serif;
+  cursor: pointer;
+  transition: background-color 2s ease-out 100ms
+}
+
+.options:hover
+{
+  border: white;
+  color: white;
+  background-color: salmon;
+}
