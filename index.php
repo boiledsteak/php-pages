@@ -139,10 +139,79 @@ switch ($request) {
     }
 
     case '/leaderboard':
-    {
+        {
+            // Read user scores from the file
+            $userScoresContent = file_get_contents($userRecord);
         
-        break;
-    }
+            if ($userScoresContent !== false) 
+            {
+                // Explode the content into an array of lines
+                $userScoresLines = explode("\n", $userScoresContent);
+        
+                // Initialize an array to store users and their scores
+                $userScores = [];
+        
+                // Loop through each line and add users to the array
+                foreach ($userScoresLines as $userScoresLine) 
+                {
+                    if (empty($userScoresLine)) 
+                    {
+                        continue;
+                    }
+        
+                    list($username, $score) = explode('=', $userScoresLine);
+                    $userScores[] = [
+                        'username' => $username,
+                        'score' => $score,
+                    ];
+                }
+        
+                // Sort the array by score in descending order
+                usort($userScores, function ($a, $b) {
+                    return $b['score'] - $a['score'];
+                });
+        
+                // Prepare HTML for displaying leaderboard
+                $htmlLeaderboard = '
+                <div class="canvas">
+                    <div class="countrytitle">
+                        Leaderboard
+                    </div>
+                    <div class="leaderboard">
+                        <ul>';
+        
+                foreach ($userScores as $index => $userScore) 
+                {
+                    // Add each user with their score
+                    $htmlLeaderboard .= '
+                        <li>
+                            ' . ($index + 1) . '. ' . htmlspecialchars($userScore['username']) . ': ' . $userScore['score'] . ' points
+                        </li>';
+                }
+        
+                // Close the HTML
+                $htmlLeaderboard .= '
+                        </ul>
+                    </div>
+                </div>';
+        
+                // Display leaderboard
+                require __DIR__ . $viewDir . 'mainpage.php';
+                headerComponent();
+                echo $htmlLeaderboard;
+                btmComponent();
+            } 
+            else 
+            {
+                // Error reading the user scores file
+                error_log("Error reading user scores file");
+                echo "<h1>Something went wrong!!! Please try again</h1>";
+                return;
+            }
+        
+            break;
+        }
+        
 
     case '/register':
     {
@@ -324,7 +393,7 @@ switch ($request) {
                                     <p>Songwriter: ' . htmlspecialchars($question['songwriter']) . '</p>
                                 </div>
                                 <div class="user-input">
-                                    <input type="text" name="answers[' . $index . ']" required>
+                                    <input class="musicresponse" type="text" name="answers[' . $index . ']" required>
                                 </div>
                             </li>
                         ';
