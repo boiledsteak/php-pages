@@ -326,6 +326,7 @@ switch ($request) {
         {
             // Retrieve user object from the session
             $user = $_SESSION['user'] ?? null;
+        
             // Check if user is logged in
             if ($user) 
             {
@@ -393,7 +394,7 @@ switch ($request) {
                                     <p>Songwriter: ' . htmlspecialchars($question['songwriter']) . '</p>
                                 </div>
                                 <div class="user-input">
-                                    <input class="musicresponse" type="text" name="answers[' . $index . ']" required>
+                                    <input class="musicresponse" type="text" name="answers[' . $index . ']" value="">
                                 </div>
                             </li>
                         ';
@@ -406,14 +407,13 @@ switch ($request) {
                                 
                             </div>
                             <!-- Submit button container -->
-                                <div class="submit-container">
-                                    <!-- Submit button -->
-                                    <button type="submit">Submit</button>
-                                </div>
+                            <div class="submit-container">
+                                <!-- Submit button -->
+                                <button type="submit">Submit</button>
+                            </div>
                         </form>
                     </div>';
         
-                    
                     require __DIR__ . $viewDir . 'mainpage.php';
                     headerComponent();
                     echo $html;
@@ -426,7 +426,6 @@ switch ($request) {
                     echo "<h1>Something went wrong!!! Please try again</h1>";
                     return;
                 }
-        
             } 
             else 
             {
@@ -436,107 +435,118 @@ switch ($request) {
             }
             break;
         }
-                
+                 
     case '/country':
-    {
-        // Retrieve user object from the session
-        $user = $_SESSION['user'] ?? null;
-        // Check if user is logged in
-        if ($user) 
         {
-            // Read the cquiz.txt file
-            $quizFilePath = 'cquiz.txt';
-            $quizContent = file_get_contents($quizFilePath);
-
-            // Initialize an empty array to store statements
-            $statements = [];
-
-            // if file can be read
-            if ($quizContent !== false) 
+            // Retrieve user object from the session
+            $user = $_SESSION['user'] ?? null;
+        
+            // Check if user is logged in
+            if ($user) 
             {
-                // Explode the content into an array of lines
-                $quizLines = explode("\n", $quizContent);
-
-                foreach ($quizLines as $quizLine) 
+                // Read the cquiz.txt file
+                $quizFilePath = 'cquiz.txt';
+                $quizContent = file_get_contents($quizFilePath);
+        
+                // Initialize an empty array to store statements
+                $allStatements = [];
+        
+                // if file can be read
+                if ($quizContent !== false) 
                 {
-                    if (empty($quizLine)) 
+                    // Explode the content into an array of lines
+                    $quizLines = explode("\n", $quizContent);
+        
+                    foreach ($quizLines as $quizLine) 
                     {
+                        if (empty($quizLine)) 
+                        {
+                            continue;
+                        }
+        
+                        list($statement, $correctAnswer) = explode('=', $quizLine);
+        
+                        // Convert "yes" and "no" to boolean values
+                        $correctAnswerBool = strtolower(trim($correctAnswer)) === 'yes';
+                        $allStatements[] = [
+                            'statement' => $statement,
+                            'correctAnswer' => $correctAnswerBool,
+                        ];
+                    }
+        
+                    // Use datetime as a seed for randomization
+                    srand((int)date('YmdHis'));
+        
+                    // Shuffle the array of statements
+                    shuffle($allStatements);
+        
+                    // Select the first 3 statements
+                    $selectedStatements = array_slice($allStatements, 0, 3);
+        
+                    $_SESSION['quiz_statements'] = $selectedStatements;
+                } 
+                else 
+                {
+                    // Error reading the quiz file
+                    error_log("Error reading quiz file");
+                    echo "<h1>Something went wrong!!! Please try again</h1>";
+                    return;
+                }
+        
+                $html = '
+                <div class="canvas">
+                    <div class="countrytitle">
+                        Hello ' . htmlspecialchars($user->name) . '! This is the country quiz
+                    </div>
+                    <form action="/submitCountry" method="post">
+                        <div class="quizquestion">
+                            <div class="container">                
+                                <ul>';
+        
+                foreach ($selectedStatements as $statement) {
+                    // Skip empty statements
+                    if (empty($statement['statement'])) {
                         continue;
                     }
-
-                    list($statement, $correctAnswer) = explode('=', $quizLine);
-
-                    // Convert "yes" and "no" to boolean values
-                    $correctAnswerBool = strtolower(trim($correctAnswer)) === 'yes';
-                    $statements[] = [
-                        'statement' => $statement,
-                        'correctAnswer' => $correctAnswerBool,
-                    ];
+        
+                    // Add each statement without the "=true" or "=false" part with true/false options
+                    $html .= '
+                        <li>
+                            ' . $statement['statement'] . '
+                            <br>
+                            <input type="radio" name="answers[' . htmlspecialchars($statement['statement']) . ']" value="true" required>
+                            <label>True</label>
+                            <input type="radio" name="answers[' . htmlspecialchars($statement['statement']) . ']" value="false">
+                            <label>False</label>
+                        </li>
+                    ';
                 }
-
-                $_SESSION['quiz_statements'] = $statements;
+        
+                // Close the HTML
+                $html .= '
+                                </ul>
+                            </div>
+                        </div>
+                        <!-- Submit button container -->
+                        <div class="submit-container">
+                            <!-- Submit button -->
+                            <button type="submit">Submit</button>
+                        </div>
+                    </form>
+                </div>';
+                require __DIR__ . $viewDir . 'mainpage.php';
+                headerComponent();
+                echo $html;
+                btmComponent();
+                break;
             } 
             else 
             {
-                // Error reading the quiz file
-                error_log("Error reading quiz file");
-                echo "<h1>Something went wrong!!! Please try again</h1>";
-                return;
+                // Redirect back
+                header('Location: /');
+                break;
             }
-
-            $html = '
-            <div class="canvas">
-                <div class="countrytitle">
-                    Hello ' . htmlspecialchars($user->name) . '! This is the country quiz
-                </div>
-                <form action="/submitCountry" method="post">
-                    <div class="quizquestion">
-                        <div class="container">                
-                            <ul>';
-
-            foreach ($statements as $statement) {
-                // Skip empty statements
-                if (empty($statement['statement'])) {
-                    continue;
-                }
-            
-                // Add each statement without the "=true" or "=false" part with true/false options
-                $html .= '
-                    <li>
-                        ' . $statement['statement'] . '
-                        <br>
-                        <input type="radio" name="answers[' . htmlspecialchars($statement['statement']) . ']" value="true" required>
-                        <label>True</label>
-                        <input type="radio" name="answers[' . htmlspecialchars($statement['statement']) . ']" value="false">
-                        <label>False</label>
-                    </li>
-                ';
-                            }
-            // Close the HTML
-            $html .= '
-                            </ul>
-                        </div>
-                    </div>
-                    <!-- Submit button container -->
-                    <div class="submit-container">
-                        <!-- Submit button -->
-                        <button type="submit">Submit</button>
-                    </div>
-                </form>
-            </div>';
-            require __DIR__ . $viewDir . 'mainpage.php';
-            headerComponent();
-            echo $html;
-            btmComponent();
-            break;
-        } 
-        else 
-        {
-            // Redirect back
-            header('Location: /');
-            break;
         }
-    }
 
     case '/submitcountry':
         {
@@ -657,14 +667,6 @@ switch ($request) {
         
             if ($user) 
             {
-                // Check if any user answer is empty
-                if (in_array('', $userAnswers, true)) 
-                {
-                    // Redirect back to /music if any answer is empty
-                    header('Location: /music');
-                    exit;
-                }
-
                 // If the user is not set in the session, create a new session variable for the current user
                 if (!isset($_SESSION['current_user'])) 
                 {
@@ -691,8 +693,8 @@ switch ($request) {
                     $userAnswer = $userAnswers[$index] ?? '';
         
                     // Check if the user's answer matches the correct answer
-                    $isCorrect = strtolower(trim($userAnswer)) === strtolower(trim($question['correctAnswer']));
-                    
+                    $isCorrect = strtolower(trim($userAnswer)) === strtolower(trim($question['songName']));
+        
                     // Update counts
                     if ($isCorrect) 
                     {
@@ -710,7 +712,7 @@ switch ($request) {
         
                 // Update user score in the file
                 updateUserScoreToFile($user);
-
+        
                 // Get the cumulative score within the current session
                 $cumulativeScore = $_SESSION['current_user']['total_score'] ?? 0;
         
@@ -726,7 +728,7 @@ switch ($request) {
                         <p>Number of wrong statements: ' . $wrongCount . '</p>
                         <p>Total Score of your current attempts this sitting:' . $cumulativeScore . '</p>
                     </div>
-
+        
                     <div class="optionsbox">
                         <a href="/music" class="options">
                         Try again
@@ -735,7 +737,7 @@ switch ($request) {
                         Try country quiz
                         </a>
                     </div>
-
+        
                 </div>    
                         
                         ';

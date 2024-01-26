@@ -1,4 +1,4 @@
-tim=50
+tim=110
 eunice=60
 jonny=0
 timm=20
