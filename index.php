@@ -264,7 +264,7 @@ switch ($request) {
                 $quizFilePath = 'mquiz.txt';
                 $quizContent = file_get_contents($quizFilePath);
         
-                // Initialize an empty array to store pic paths
+                // Initialize an empty array to store questions
                 $questions = [];
         
                 // if file can be read
@@ -281,13 +281,14 @@ switch ($request) {
                             continue;
                         }
         
-                        list($filename, $correctAnswer) = explode('=', $quizLine);
+                        list($filename, $songwriter, $songName) = explode('=', $quizLine);
                         $path = $musicDir . $filename; // Include the $musicDir in the path
         
                         // Add the question to the array
                         $questions[] = [
                             'path' => $path,
-                            'correctAnswer' => $correctAnswer,
+                            'songName' => $songName,
+                            'songwriter' => $songwriter,
                         ];
                     }
         
@@ -302,11 +303,11 @@ switch ($request) {
                         <form action="/submitmusic" method="post">
                             <div class="container">
                                 <div class="titleqn">
-                                    What is the name of the song?
+                                    Identify the song name for each album cover:
                                 </div>
                                 <div class="musicquiz">
                                     <ul class="musiclist">';
-
+        
                     foreach ($questions as $index => $question) 
                     {
                         // Skip empty questions
@@ -314,18 +315,21 @@ switch ($request) {
                         {
                             continue;
                         }
-
-                        // Add each question with an image and a textbox
+        
+                        // Add each question with an image, and display the songwriter
                         $html .= '
                             <li class="musicrow">
                                 <img src="' . htmlspecialchars($question['path']) . '" alt="Music Picture" ">                           
-                                <input class="musicresponse" type="text" name="answers[' . $index . ']" id="' . $index . '" required>
+                                <div class="songwriter-info">
+                                    <p>Songwriter: ' . htmlspecialchars($question['songwriter']) . '</p>
+                                </div>
+                                <div class="user-input">
+                                    <input type="text" name="answers[' . $index . ']" required>
+                                </div>
                             </li>
                         ';
-
-                        
                     }
-
+        
                     // Close the HTML
                     $html .= '
                                     </ul>
@@ -339,7 +343,7 @@ switch ($request) {
                                 </div>
                         </form>
                     </div>';
-
+        
                     
                     require __DIR__ . $viewDir . 'mainpage.php';
                     headerComponent();
@@ -523,7 +527,7 @@ switch ($request) {
                 }
         
                 // Calculate total points
-                $totalPoints = ($correctCount * 4) - ($wrongCount * 2);
+                $totalPoints = max(0, ($correctCount * 4) - ($wrongCount * 2));
                 $_SESSION['current_user']['total_score'] += $totalPoints;
         
                 // Update user score in the file
@@ -632,7 +636,7 @@ switch ($request) {
                 }
         
                 // Calculate total points
-                $totalPoints = ($correctCount * 4) - ($wrongCount * 2);
+                $totalPoints = max(0, ($correctCount * 4) - ($wrongCount * 2));
                 $_SESSION['current_user']['total_score'] += $totalPoints;
         
                 // Update user score in the file
