@@ -93,9 +93,10 @@ body
     margin: auto;
     margin-top: 50px;
     width: 500px;
-    
 
 }
+
+
 
 /* MAIN PAGE STYLING */
 
@@ -269,17 +270,21 @@ ul
 {
   height: 80px;
   font-family: 'Roboto', sans-serif;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-evenly;
 }
 
 
 
 /* submit button styling */
 
-.submit-container button
+.submit-container button, .sub
 {
   cursor: pointer;
   font-size: 32px;
   margin-right: 10px;
+  font-family: 'Roboto', sans-serif;
 }
 
 .submit-container
@@ -291,10 +296,12 @@ ul
   width: 100%;
 }
 
-.submit-container button:hover 
+.submit-container button:hover , .sub:hover
 {
   color: salmon;
 }
+
+
 
 
 
@@ -387,4 +394,28 @@ li img
   border: white;
   color: white;
   background-color: salmon;
+}
+
+/* 
+
+============================== START leadserboard page
+*/
+
+
+
+.sorter a
+{
+  font-family: 'Roboto', sans-serif;
+  border: 1px solid grey;
+  color: grey;
+  border-radius: 50px;
+  height: 10px;
+  padding: 8px 16px;
+}
+
+#sorting
+{
+  background-color: salmon;
+  color: white;
+  border-color: white;
 }

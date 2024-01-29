@@ -1,4 +1,5 @@
-tim=110
-eunice=60
+tim=614
+eunice=66
 jonny=0
 timm=20
+anjaly=28

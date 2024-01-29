@@ -34,7 +34,10 @@ function headerComponent()
             </a>
             <div class="menoptions">
                 <div class="menoption">
-                    <a href="/leaderboard">leaderboard</a>
+                    <a href="/leaderboard">Leaderboard</a>
+                </div>
+                <div class="menoption">
+                    <a href="/exit">Exit</a>
                 </div>
             </div>
         </div>
@@ -81,6 +84,17 @@ function registerComponent()
         ';
 }
 
+function exitComponent()
+{
+    echo '
+        <!-- Submit button container -->
+        <div class="submit-container">
+            <!-- Exit button -->
+            <button type="submit">Exit</button>
+        </div>
+    ';
+}
+
 // Function to update user score in the file
 function updateUserScoreToFile($user) 
 {
@@ -118,8 +132,6 @@ function updateUserScoreToFile($user)
     }
 }
 
-// TODO
-// create the "exit" page 
 
 // Router API
 switch ($request) {
@@ -140,7 +152,53 @@ switch ($request) {
         break;
     }
 
-    case '/leaderboard':
+    case '/exit':
+    {
+        // Retrieve the current user from the session
+        $currentUser = $_SESSION['current_user'] ?? null;
+    
+        // Check if the user is logged in
+        if ($currentUser) 
+        {
+            // Display the current user's name and score from the current sitting
+            $htmlExit = '
+            <div class="canvas">
+                <div class="countrytitle">
+                    Current User Information
+                </div>
+                <div class="user-info">
+                    <p>User: ' . htmlspecialchars($currentUser['name']) . '</p>
+                    <p>Current Score: ' . $currentUser['total_score'] . '</p>
+                </div>
+    
+                <div class="optionsbox">
+                    <a href="/" class="options">
+                        Start new
+                    </a>
+                </div>
+            </div>';
+    
+            // Display the exit page
+            require __DIR__ . $viewDir . 'mainpage.php';
+            headerComponent();
+            echo $htmlExit;
+            btmComponent();
+        } 
+        else 
+        {
+            // Redirect to home if the user is not logged in
+            echo "<h1>Must log in to view exit page</h1>";
+            require __DIR__ . $viewDir . 'mainpage.php';
+            headerComponent();
+            registerComponent();
+            btmComponent();
+            break;
+        }
+    
+        break;
+    }
+
+    case '/leaderboard': //default sort by score
         {
             // Read user scores from the file
             $userScoresContent = file_get_contents($userRecord);
@@ -178,7 +236,16 @@ switch ($request) {
                 <div class="canvas">
                     <div class="countrytitle">
                         Leaderboard
+                        <div class="sorter">
+                        <a href="/leaderboard" id="sorting">
+                            Sort by score
+                        </a>
+                        <a href="/leaderboardsortname">
+                            Sort by name
+                        </a>
                     </div>
+                    </div>
+                    
                     <div class="leaderboard">
                         <ul>';
         
@@ -214,6 +281,90 @@ switch ($request) {
             break;
         }
         
+    case '/leaderboardsortname':
+        {
+            // Read user scores from the file
+            $userScoresContent = file_get_contents($userRecord);
+        
+            if ($userScoresContent !== false) 
+            {
+                // Explode the content into an array of lines
+                $userScoresLines = explode("\n", $userScoresContent);
+        
+                // Initialize an array to store users and their scores
+                $userScores = [];
+        
+                // Loop through each line and add users to the array
+                foreach ($userScoresLines as $userScoresLine) 
+                {
+                    if (empty($userScoresLine)) 
+                    {
+                        continue;
+                    }
+        
+                    list($username, $score) = explode('=', $userScoresLine);
+                    $userScores[] = [
+                        'username' => $username,
+                        'score' => $score,
+                    ];
+                }
+        
+                // Sort the array by username in ascending order
+                usort($userScores, function ($a, $b) {
+                    return strcmp($a['username'], $b['username']);
+                });
+        
+                // Prepare HTML for displaying leaderboard
+                $htmlLeaderboard = '
+                <div class="canvas">
+                    <div class="countrytitle">
+                        Leaderboard
+                        <div class="sorter">
+                        <a href="/leaderboard">
+                            Sort by score
+                        </a>
+                        <a href="/leaderboardsortname" id="sorting">
+                            Sort by name
+                        </a>
+                    </div>
+                    </div>
+                    
+                    <div class="leaderboard">
+                        <ul>';
+        
+                foreach ($userScores as $index => $userScore) 
+                {
+                    // Add each user with their score
+                    $htmlLeaderboard .= '
+                        <li>
+                            ' . ($index + 1) . '. ' . htmlspecialchars($userScore['username']) . ': ' . $userScore['score'] . ' points
+                        </li>';
+                }
+        
+                // Close the HTML
+                $htmlLeaderboard .= '
+                        </ul>
+                    </div>
+                </div>';
+        
+                // Display leaderboard
+                require __DIR__ . $viewDir . 'mainpage.php';
+                headerComponent();
+                echo $htmlLeaderboard;
+                btmComponent();
+            } 
+            else 
+            {
+                // Error reading the user scores file
+                error_log("Error reading user scores file");
+                echo "<h1>Something went wrong!!! Please try again</h1>";
+                return;
+            }
+        
+            break;
+        }
+            
+        
 
     case '/register':
     {
@@ -231,12 +382,18 @@ switch ($request) {
             {
                 echo "<h1>Please enter name!!!!</h1>";
                 require __DIR__ . $viewDir . 'mainpage.php';
+                headerComponent();
+                registerComponent();
+                btmComponent();
                 break;
             } 
             elseif (!preg_match("/^[a-zA-Z]*$/", $name)) 
             {
                 echo "<h1>Only letters allowed !!!! And no whitespace</h1>";
                 require __DIR__ . $viewDir . 'mainpage.php';
+                headerComponent();
+                registerComponent();
+                btmComponent();
                 break;
             } 
             else 
@@ -309,6 +466,9 @@ switch ($request) {
                         // File does not exist or error with file reading
                         echo "<h1>Something went wrong!!! Please try again</h1>";
                         require __DIR__ . $viewDir . 'mainpage.php';
+                        headerComponent();
+                        registerComponent();
+                        btmComponent();
                         break;
                     }
                 } 
@@ -317,6 +477,9 @@ switch ($request) {
                     // quiz type not country or music
                     echo "<h1>Invalid quiz type. Please try again</h1>";
                     require __DIR__ . $viewDir . 'mainpage.php';
+                    headerComponent();
+                    registerComponent();
+                    btmComponent();
                     break;
                 }
             }
@@ -393,7 +556,7 @@ switch ($request) {
                             <li class="musicrow">
                                 <img src="' . htmlspecialchars($question['path']) . '" alt="Music Picture" ">                           
                                 <div class="songwriter-info">
-                                    <p>Songwriter: ' . htmlspecialchars($question['songwriter']) . '</p>
+                                    <p>' . htmlspecialchars($question['songwriter']) . '</p>
                                 </div>
                                 <div class="user-input">
                                     <input class="musicresponse" type="text" name="answers[' . $index . ']" value="">
@@ -638,6 +801,7 @@ switch ($request) {
                         Try music quiz
                         </a>
                     </div>
+                    
 
                 </div>    
                         
